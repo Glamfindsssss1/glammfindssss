@@ -272,7 +272,7 @@
     </div>
 
     <!-- Telegram Card -->
-    <a href="https://t.me/addlist/3jyMrVQHFAsyYzVi" target="_blank" rel="noopener" onclick="openTelegram(event)"
+    <a href="https://telegram.me/addlist/YwioGnaXQt9jYjky" target="_blank" rel="noopener" onclick="openTelegram(event)"
        class="tg-card card-hover"
        style="max-width:480px;"
        aria-label="Join Telegram – ALL FINDS FROM VIDEOS">
@@ -408,26 +408,44 @@
   <script>
     function openTelegram(e) {
       e.preventDefault();
-      var deepLink = 'tg://addlist/3jyMrVQHFAsyYzVi';
-      var webLink = 'https://t.me/addlist/3jyMrVQHFAsyYzVi';
+      var deepLink = 'tg://addlist/YwioGnaXQt9jYjky';
+      var webLink = 'https://telegram.me/addlist/YwioGnaXQt9jYjky';
+      var fallbackTriggered = false;
+
+      function cleanup() {
+        document.removeEventListener('visibilitychange', onVisibilityChange);
+        window.removeEventListener('blur', onVisibilityChange);
+        if (iframe.parentNode) document.body.removeChild(iframe);
+      }
+
+      function openFallback() {
+        if (fallbackTriggered) return;
+        fallbackTriggered = true;
+        cleanup();
+        window.open(webLink, '_blank');
+      }
+
+      function onVisibilityChange() {
+        // App opened (page hidden/blurred) - cancel the fallback immediately
+        if (document.hidden || document.visibilityState === 'hidden') {
+          fallbackTriggered = true;
+          cleanup();
+          clearTimeout(fallbackTimer);
+        }
+      }
+
+      document.addEventListener('visibilitychange', onVisibilityChange);
+      window.addEventListener('blur', onVisibilityChange);
 
       // Try to open Telegram app via deep link
-      var start = Date.now();
       var iframe = document.createElement('iframe');
       iframe.style.display = 'none';
       iframe.src = deepLink;
       document.body.appendChild(iframe);
 
-      // After a short delay, check if the app opened
-      // If not (still on page), fall back to web link
-      setTimeout(function() {
-        document.body.removeChild(iframe);
-        var elapsed = Date.now() - start;
-        // If less than 1500ms passed and page is still visible, app didn't open
-        if (elapsed < 1500) {
-          window.open(webLink, '_blank');
-        }
-      }, 800);
+      // Much shorter fallback delay for a snappier feel;
+      // cancelled instantly above if the app actually opens
+      var fallbackTimer = setTimeout(openFallback, 250);
     }
   </script>
 </body>
